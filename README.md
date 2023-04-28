@@ -3,7 +3,9 @@ MachinePost was made entirely in Python to run on Google Colab, with the aim of 
 (PT/BR) O MachinePost foi feito inteiramente em Python para rodar no Google Colab, com o intuito de postar 5 conteúdos de texto com imagem/gif/vídeo por dia durante uma semana no Nostr. O código não está totalmente funcional, portanto preciso de ajuda para finalizar.
 
 #1 Cell - Install request for Nostr / Instalar requisição para o Nostr
+```
 !pip install requests nostr
+```
 
 #2 Cell - PrivateKey generator / Gerador de chaves Nostr
 from nostr.key import PrivateKey
