@@ -3,12 +3,14 @@ MachinePost was made entirely in Python to run on Google Colab, with the aim of 
 
 (PT/BR) O MachinePost foi feito inteiramente em Python para rodar no Google Colab, com o intuito de postar 5 conteúdos de texto com imagem/gif/vídeo por dia durante uma semana no Nostr. O código não está totalmente funcional, portanto preciso de ajuda para finalizar.
 
-## 1 Cell - Install request for Nostr / Instalar requisição para o Nostr
+## 1 Cell - Install request for Nostr 
+(PT/BR) Instalar requisição para o Nostr
 ```
 !pip install requests nostr
 ```
 
-## 2 Cell - PrivateKey generator / Gerador de chaves Nostr
+## 2 Cell - PrivateKey generator 
+(PT/BR) Gerador de chaves Nostr
 ```
 from nostr.key import PrivateKey
 
@@ -21,7 +23,8 @@ print(f"Private key: {private_key.hex()}")
 print(f"Public key: {public_key.hex()}")
 ```
 
-## 3 Cell - Relay and account request / Requisição do Relay e da conta
+## 3 Cell - Relay and account request 
+(PT/BR) Requisição do Relay e da conta
 ```
 import requests
 import time
@@ -88,7 +91,8 @@ print(allow_adult)
 print(allow_violent)
 ```
 
-## 5 Cell - Test with images saved in Google Drive / Teste com imagens salvas no Google Drive
+## 5 Cell - Test with images saved in Google Drive 
+(PT/BR) Teste com imagens salvas no Google Drive
 ```
 from google.colab import drive
 import time
@@ -106,8 +110,8 @@ path = "/content/drive/MyDrive/ABiblioteca/1.modif2.png"
 filename2 = os.path.splitext(os.path.basename(path))
 ```
 
-## 6 Cell - Image/video media upload request in nostr.build (I didn't understand how this works) 
-/ Requisição de upload de midia de imagem/video no nostr.build (não entendi como isso funciona)
+## 6 Cell - Image/video media upload request in nostr.build (I din't know how this works) 
+(PT/BR) Requisição de upload de midia de imagem/video no nostr.build (não sei como isso funciona)
 ```
 import os
 import requests
@@ -142,7 +146,8 @@ print(response.status_code)
 print(response.content)
 ```
 
-## 7 Cell - [Don't work] Attempting to get the URL of the uploaded image / [Não funciona] Tentativa de obter a URL da imagem enviada
+## 7 Cell - [Don't work] Attempting to get the URL of the uploaded image 
+(PT/BR) [Não funciona] Tentativa de obter a URL da imagem enviada
 ```
 import os
 import requests
@@ -156,9 +161,9 @@ print(url)
 ```
 
 ## 8 Cell - Analyzes the media sent to nostr.build 
-(the intention is to analyze the URL received in the previous cell, the entered url was manually copied from a manually uploaded image)
-/ Analiza a midia enviada manualmente para o nostr.build 
-(a intenção é analizar o URL recebido na celula anterior, a url inserida foi copiada manualmente de uma imagem upada manualmente)
+The intention is to analyze the URL received in the previous cell, the entered url was manually copied from a manually uploaded image.
+(PT/BR) Analiza a midia enviada manualmente para o nostr.build 
+A intenção é analizar o URL recebido na celula anterior, a url inserida foi copiada manualmente de uma imagem upada manualmente.
 ```
 #<media_path>/<sha256>/<filename>.<type>?<query_params>
 #f'{media_path}/{sha256}/{filename2}?{query_params}'
@@ -183,7 +188,8 @@ else:
     print(f'Erro ao baixar a imagem: {response.status_code}')
 ```
 
-## 9 Cell - Main Data Generation / Geração de Dados Principal
+## 9 Cell - Main Data Generation [That still haven't received the url of the image referring to the text in question]
+(PT/BR) Geração de Dados Principal [Ainda não recebe a url da imagem referente ao texto em questão]
 ```
 from google.colab import drive 
 from google.colab import runtime
