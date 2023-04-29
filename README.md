@@ -43,6 +43,8 @@ time.sleep(1.25) # allow the connections to open
 os.environ["PRIVATE_KEY"] = private_key.hex()
 
 env_private_key = os.environ.get("PRIVATE_KEY") # Put your PRIVATE_KEY or just get it from the previous cell.
+if env_private_key:
+    print('"PRIVATE_KEY" confirmed.')
 if not env_private_key:
     print('The environment variable "PRIVATE_KEY" is not set.')
     exit(1)
@@ -58,8 +60,8 @@ import json
 
 json_string = '''{
   "media": {
-    "apiPath": "https://nostr.build/api",
-    "mediaPath": "https://nostr.build",
+    "apiPath": "https://nostr.build/api/upload/",
+    "mediaPath": "https://nostr.build/upload.php",
     "acceptedMimetypes": [
       "image/jpg",
       "image/png",
@@ -98,16 +100,27 @@ from google.colab import drive
 import time
 import os
 
-# monta o google drive
+# Connects to Google Drive / Conecta ao Google Drive
 drive.mount('/content/drive')
 print("Conectado ao Drive.\n")
 time.sleep(1)
 
-# caminho das imagens no google drive
+# Path of images in Google Drive / Caminho das imagens no Google Drive
 path = "/content/drive/MyDrive/ABiblioteca/1.modif2.png" 
 
-# nome da imagem com .[formato]
-filename2 = os.path.splitext(os.path.basename(path))
+# Image name with .format / Nome da imagem com .formato
+filename2 = os.path.basename(path)
+# Image name / Nome da imagem
+filename = os.path.splitext(os.path.basename(path))[0]
+# .format / .formato
+fileformat = os.path.splitext(path)[1]
+
+print(f"Nome do arquivo: {filename2}")
+print(f"Nome da imagem: {filename}")
+print(f"Formato da imagem: {fileformat}")
+
+img = Image.open(path)
+img.show() 
 ```
 
 ## 6 Cell - Image/video media upload request in nostr.build (I din't know how this works) 
@@ -116,10 +129,10 @@ filename2 = os.path.splitext(os.path.basename(path))
 import os
 import requests
 
-# Caminho para o arquivo da imagem
+# Path to image file / Caminho para o arquivo da imagem
 file_path = f"{path}"
 
-# Definir os cabeçalhos da requisição
+# Define request headers / Definir os cabeçalhos da requisição
 boundary = "<boundary>"
 file_name = f"{filename2}" #os.path.basename(file_path) 
 file_mime_type = "image/png"
@@ -127,37 +140,44 @@ headers = {
     "Content-Type": f"multipart/form-data; boundary={boundary}"
 }
 
-# Ler o arquivo binário da imagem
+# Read the image binary file / Ler o arquivo binário da imagem
 with open(file_path, "rb") as f:
     file_binary_data = f.read()
 
-# Definir o corpo da requisição
+# Definir o corpo da requisição / Definir o corpo da requisição
 body = f"--{boundary}\r\n" \
        f"Content-Disposition: form-data; name=\"file\"; filename=\"{file_name}\"\r\n" \
        f"Content-Type: {file_mime_type}\r\n\r\n" \
        f"{file_binary_data}\r\n" \
        f"--{boundary}--"
 
-# Enviar a requisição POST
+# Send the post request / Enviar a requisição de post
 response = requests.post(api_path, headers=headers, data=body)
 
-# Imprimir o código de status e o conteúdo da resposta
+# Print status code and response content / Imprimir o código de status e o conteúdo da resposta
 print(response.status_code)
 print(response.content)
 ```
 
-## 7 Cell - [Don't work] Attempting to get the URL of the uploaded image 
-(PT/BR) [Não funciona] Tentativa de obter a URL da imagem enviada
+## 7 Cell - Calculates the SHA-256 hash of the file
+(PT/BR) Calcula o hash SHA-256 do do arquivo
 ```
+import hashlib
 import os
-import requests
 
-# Extrair a URL do corpo da resposta (em formato JSON) ((EXPERIMENTAL))
-response_dict = json.loads(response.content)
-url = response_dict["url"]
-
-# Imprimir o link HTTP da imagem enviada ((EXPERIMENTAL))
-print(url)
+# Check if the file exists / Checa se o arquivo existe
+if os.path.exists(path):
+    # Abre o arquivo em modo de leitura binária
+    with open(path, 'rb') as f:
+        # Lê o conteúdo do arquivo
+        content = f.read()
+        # Calcula o hash SHA-256 do conteúdo
+        hash_obj = hashlib.sha256(content)
+        sha256result = hash_obj.hexdigest()
+        # Imprime o resultado
+        print(sha256result)
+else:
+    print("Arquivo não encontrado")
 ```
 
 ## 8 Cell - Analyzes the media sent to nostr.build 
@@ -165,15 +185,13 @@ The intention is to analyze the URL received in the previous cell, the entered u
 (PT/BR) Analiza a midia enviada manualmente para o nostr.build 
 A intenção é analizar o URL recebido na celula anterior, a url inserida foi copiada manualmente de uma imagem upada manualmente.
 ```
-#<media_path>/<sha256>/<filename>.<type>?<query_params>
-#f'{media_path}/{sha256}/{filename2}?{query_params}'
-#f'https://nostr.build/{sha256}/{filename2}?width=800&quality=90'
-
 import requests
 from PIL import Image
 import tempfile
 
 url = 'https://nostr.build/i/nostr.build_2603027c7ac856090fea4999c6711ad35490b1b0c6b255637c82bb2460681f10.jpg'
+# url = f'https://nostr.build/i/nostr.build_{sha256result}{fileformat}'
+# print(f"{url}")
 
 response = requests.get(url)
 
@@ -188,8 +206,8 @@ else:
     print(f'Erro ao baixar a imagem: {response.status_code}')
 ```
 
-## 9 Cell - Main Data Generation [That still haven't received the url of the image referring to the text in question]
-(PT/BR) Geração de Dados Principal [Ainda não recebe a url da imagem referente ao texto em questão]
+## 9 Cell - Main Data Generation [Still does not receive the url of the image referring to the text sent with their name]
+(PT/BR) Geração de Dados Principal [Ainda não recebe a url da imagem referente ao texto enviado com nome delas]
 ```
 from google.colab import drive 
 from google.colab import runtime
@@ -434,7 +452,7 @@ for i in range(7):
         print(hora_gm.strftime("%d/%m/%Y %H:%M:%S")) 
 
 
-        # posta o GM
+        # Post the GM / Posta o GM
         message = "GM " + str(emoji_gm)
         event = Event(
             content=str(message),
@@ -443,7 +461,7 @@ for i in range(7):
         private_key.sign_event(event)
         relay_manager.publish_event(event)
 
-        # printa o GM
+        # Print the complete GM / Imprime o GM completo
         print("GM", emoji_gm)
 
     # condicional para a primeira imagem    
@@ -462,7 +480,7 @@ for i in range(7):
         print("Imagem 1:")
 
         
-        # posta o nome da imagem com a imagem
+        # Post the name of the image with the image / Posta o nome da imagem com a imagem
         filename_url = f"{filename}\n\n{url}" #filename (Title and/or description) + url
         message = str(filename_url)
         event = Event(
@@ -472,10 +490,10 @@ for i in range(7):
         private_key.sign_event(event)
         relay_manager.publish_event(event)
 
-        # exibe o nome da imagem
+        # Print image name / Imprime o nome da imagem
         print(f"\nNome da imagem: {filename}\n")
 
-        # abre e exibe a imagem
+        # Open and show the image / Abre e exibe a imagem
         img = Image.open(path)
         img.show()        
 
@@ -626,7 +644,7 @@ for i in range(7):
         # Imprime a mensagem formatada
         print(hora_gn.strftime("%d/%m/%Y %H:%M:%S"))
 
-        # posta o GN
+        # Post the GN / Posta o GN
         message = "GN " + str(emoji_gn)
         event = Event(
             content=str(message),
@@ -635,6 +653,6 @@ for i in range(7):
         private_key.sign_event(event)
         relay_manager.publish_event(event)
 
-        # printa o GN
+        # Print the complete GN / Imprime o GN completo
         print("GN", emoji_gn)
 ``` 
