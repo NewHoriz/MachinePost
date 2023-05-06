@@ -115,9 +115,9 @@ filename = os.path.splitext(os.path.basename(path))[0]
 # .format / .formato
 fileformat = os.path.splitext(path)[1]
 
-print(f"Nome do arquivo: {filename2}")
-print(f"Nome da imagem: {filename}")
-print(f"Formato da imagem: {fileformat}")
+print(f"File name: {filename2}")
+print(f"Image name: {filename}")
+print(f"File format: {fileformat}")
 
 img = Image.open(path)
 img.show() 
@@ -145,9 +145,9 @@ filename = os.path.splitext(os.path.basename(path))[0]
 # .format / .formato
 fileformat = os.path.splitext(path)[1]
 
-print(f"Nome do arquivo: {filename2}")
-print(f"Nome da imagem: {filename}")
-print(f"Formato da imagem: {fileformat}")
+print(f"File name: {filename2}")
+print(f"Image name: {filename}")
+print(f"Image format: {fileformat}")
 
 # Abra a imagem usando o caminho
 from PIL import Image
