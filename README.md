@@ -123,6 +123,38 @@ img = Image.open(path)
 img.show() 
 ```
 
+## 5.b Cell - (second option) Test with images saved in your machine
+(PT/BR) (seguda opição) Teste com imagens salvas na sua maquina
+```
+!pip install Pillow
+
+from google.colab import files
+
+# Escolha o arquivo que deseja fazer o upload
+uploaded = files.upload()
+
+# Obtenha o caminho do arquivo
+for filename in uploaded.keys():
+  path = '/content/' + filename
+  print('Arquivo carregado em:', path)
+
+# Image name with .format / Nome da imagem com .formato
+filename2 = os.path.basename(path)
+# Image name / Nome da imagem
+filename = os.path.splitext(os.path.basename(path))[0]
+# .format / .formato
+fileformat = os.path.splitext(path)[1]
+
+print(f"Nome do arquivo: {filename2}")
+print(f"Nome da imagem: {filename}")
+print(f"Formato da imagem: {fileformat}")
+
+# Abra a imagem usando o caminho
+from PIL import Image
+imgpath = Image.open(path)
+imgpath.show()
+```
+
 ## 6 Cell - Image/video media upload request in nostr.build (I din't know how this works) 
 (PT/BR) Requisição de upload de midia de imagem/video no nostr.build (não sei como isso funciona)
 ```
