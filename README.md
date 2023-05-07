@@ -124,34 +124,41 @@ img.show()
 ```
 
 ## 5.b Cell - (second option) Test with images saved in your machine
-(PT/BR) (seguda opição) Teste com imagens salvas na sua maquina
+(PT/BR) (seguda opção) Teste com imagens salvas na sua maquin
 ```
-!pip install Pillow
-
 from google.colab import files
+from PIL import Image
+import os
 
 # Escolha o arquivo que deseja fazer o upload
 uploaded = files.upload()
 
 # Obtenha o caminho do arquivo
 for filename in uploaded.keys():
-  path = '/content/' + filename
-  print('Arquivo carregado em:', path)
+  file_path = '/content/' + filename
+  print('Arquivo carregado em:', file_path)
 
 # Image name with .format / Nome da imagem com .formato
-filename2 = os.path.basename(path)
-# Image name / Nome da imagem
-filename = os.path.splitext(os.path.basename(path))[0]
-# .format / .formato
-fileformat = os.path.splitext(path)[1]
+print(f"\nFile name: {filename}")
 
-print(f"File name: {filename2}")
-print(f"Image name: {filename}")
-print(f"Image format: {fileformat}")
+# Image name / Nome da imagem
+imagename = os.path.splitext(os.path.basename(filename))[0]
+print(f"\nImage name: {imagename}")
+
+# .format / .formato
+file_format = os.path.splitext(filename)[1]
+print(f"\nImage format: {file_format}")
+
+# format / formato
+fileformat = os.path.splitext(filename)[1].strip(".")
+print(f"\nImage format: {fileformat}")
+
+# Dados binarios do arquivo
+file_keys = list(uploaded.keys())[0]
+#file_binary_data = uploaded[file_keys]
 
 # Abra a imagem usando o caminho
-from PIL import Image
-imgpath = Image.open(path)
+imgpath = Image.open(file_path)
 imgpath.show()
 ```
 
