@@ -402,7 +402,7 @@ for i in range(7):
   agora = datetime.datetime.now(pytz.utc)
   agora_br = agora.astimezone(fuso_horario)
 
-  # Gera horário aleatório com diferença de 0 a 15 minutos
+  # Gera horário aleatório com diferença de 0 a 20 minutos a mais
   hora_gm = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 7, 0, 0) #7h
   hora_gm += datetime.timedelta(minutes=random.randint(0, 20))
   hora_gm += datetime.timedelta(seconds=random.randint(0, 60))
