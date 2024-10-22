@@ -9,8 +9,8 @@ MachinePost was made entirely in Python to run on Google Colab, with the aim of 
 !pip install requests nostr
 ```
 
-## 2 Cell - PrivateKey generator 
-(PT/BR) Gerador de chaves Nostr
+## 2 Cell - Nostr PrivateKey generator (if you want a new acount)
+(PT/BR) Gerador de chaves Nostr (se quiser uma nova conta)
 ```
 from nostr.key import PrivateKey
 
@@ -40,9 +40,9 @@ relay_manager.add_relay("wss://relay.damus.io")
 relay_manager.open_connections({"cert_reqs": ssl.CERT_NONE}) # NOTE: This disables ssl certificate verification
 time.sleep(1.25) # allow the connections to open
 
-os.environ["PRIVATE_KEY"] = private_key.hex()
+os.environ["PRIVATE_KEY"] = private_key.hex() # Get it from the previous cell in "private_key.hex()" or change it for your hex private key as 'YourPrivateKeyHere'
 
-env_private_key = os.environ.get("PRIVATE_KEY") # Put your PRIVATE_KEY or just get it from the previous cell.
+env_private_key = os.environ.get("PRIVATE_KEY") 
 if env_private_key:
     print('"PRIVATE_KEY" confirmed.')
 if not env_private_key:
@@ -52,203 +52,10 @@ if not env_private_key:
 private_key = PrivateKey(bytes.fromhex(env_private_key))
 ```
 
-## 4 Cell -  Initial creation of JavaScript objects (JSON) / Criação inicial dos objetos JavaScript (JSON)
-```
-import json
-
-#antes: "mediaPath": "https://nostr.build"
-
-json_string = '''{
-  "media": {
-    "apiPath": "https://nostr.build/api/upload/",
-    "mediaPath": "https://nostr.build/upload.php",
-    "acceptedMimetypes": [
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "video/mp4"
-    ],
-    "contentPolicy": {
-      "allowAdultContent": true,
-      "allowViolentContent": true
-    }
-  }
-}'''
-
-# Analisar o JSON em um objeto Python
-data = json.loads(json_string)
-
-# Acessar as informações do objeto Python
-api_path = data['media']['apiPath']
-media_path = data['media']['mediaPath']
-mimetypes = data['media']['acceptedMimetypes']
-allow_adult = data['media']['contentPolicy']['allowAdultContent']
-allow_violent = data['media']['contentPolicy']['allowViolentContent']
-
-# Imprimir os valores
-print(api_path)
-print(media_path)
-print(mimetypes)
-print(allow_adult)
-print(allow_violent)
-```
-
-## 5 Cell - Test with images saved in Google Drive 
-(PT/BR) Teste com imagens salvas no Google Drive
+## 4 Cell - Main Data Generation [get images from your Google Drive]
+(PT/BR) Geração de Dados Principal [obtenha as imagens pelo seu Google drive]
 ```
 from google.colab import drive
-import time
-import os
-
-# Connects to Google Drive / Conecta ao Google Drive
-drive.mount('/content/drive')
-print("Conectado ao Drive.\n")
-time.sleep(1)
-
-# Path of images in Google Drive / Caminho das imagens no Google Drive
-path = "/content/drive/MyDrive/ABiblioteca/1.modif2.png" 
-
-# Image name with .format / Nome da imagem com .formato
-filename2 = os.path.basename(path)
-# Image name / Nome da imagem
-filename = os.path.splitext(os.path.basename(path))[0]
-# .format / .formato
-fileformat = os.path.splitext(path)[1]
-
-print(f"File name: {filename2}")
-print(f"Image name: {filename}")
-print(f"File format: {fileformat}")
-
-img = Image.open(path)
-img.show() 
-```
-
-## 5.b Cell - (second option) Test with images saved in your machine
-(PT/BR) (seguda opção) Teste com imagens salvas na sua maquin
-```
-from google.colab import files
-from PIL import Image
-import os
-
-# Escolha o arquivo que deseja fazer o upload
-uploaded = files.upload()
-
-# Obtenha o caminho do arquivo
-for filename in uploaded.keys():
-  file_path = '/content/' + filename
-  print('Arquivo carregado em:', file_path)
-
-# Image name with .format / Nome da imagem com .formato
-print(f"\nFile name: {filename}")
-
-# Image name / Nome da imagem
-imagename = os.path.splitext(os.path.basename(filename))[0]
-print(f"\nImage name: {imagename}")
-
-# .format / .formato
-file_format = os.path.splitext(filename)[1]
-print(f"\nImage format: {file_format}")
-
-# format / formato
-fileformat = os.path.splitext(filename)[1].strip(".")
-print(f"\nImage format: {fileformat}")
-
-# Dados binarios do arquivo
-file_keys = list(uploaded.keys())[0]
-#file_binary_data = uploaded[file_keys]
-
-# Abra a imagem usando o caminho
-imgpath = Image.open(file_path)
-imgpath.show()
-```
-
-## 6 Cell - Image/video media upload request in nostr.build (I din't know how this works) 
-(PT/BR) Requisição de upload de midia de imagem/video no nostr.build (não sei como isso funciona)
-```
-import os
-import requests
-
-# Path to image file / Caminho para o arquivo da imagem
-file_path = f"{path}"
-
-# Define request headers / Definir os cabeçalhos da requisição
-boundary = "<boundary>"
-file_name = f"{filename2}" #os.path.basename(file_path) 
-file_mime_type = "image/png"
-headers = {
-    "Content-Type": f"multipart/form-data; boundary={boundary}"
-}
-
-# Read the image binary file / Ler o arquivo binário da imagem
-with open(file_path, "rb") as f:
-    file_binary_data = f.read()
-
-# Definir o corpo da requisição / Definir o corpo da requisição
-body = f"--{boundary}\r\n" \
-       f"Content-Disposition: form-data; name=\"file\"; filename=\"{file_name}\"\r\n" \
-       f"Content-Type: {file_mime_type}\r\n\r\n" \
-       f"{file_binary_data}\r\n" \
-       f"--{boundary}--"
-
-# Send the post request / Enviar a requisição de post
-response = requests.post(api_path, headers=headers, data=body)
-
-# Print status code and response content / Imprimir o código de status e o conteúdo da resposta
-print(response.status_code)
-print(response.content)
-```
-
-## 7 Cell - Calculates the SHA-256 hash of the file
-(PT/BR) Calcula o hash SHA-256 do do arquivo
-```
-import hashlib
-import os
-
-# Check if the file exists / Checa se o arquivo existe
-if os.path.exists(path):
-    # Abre o arquivo em modo de leitura binária
-    with open(path, 'rb') as f:
-        # Lê o conteúdo do arquivo
-        content = f.read()
-        # Calcula o hash SHA-256 do conteúdo
-        hash_obj = hashlib.sha256(content)
-        sha256result = hash_obj.hexdigest()
-        # Imprime o resultado
-        print(sha256result)
-else:
-    print("Arquivo não encontrado")
-```
-
-## 8 Cell - Analyzes the media sent to nostr.build 
-The intention is to analyze the URL received in the previous cell, the entered url was manually copied from a manually uploaded image.
-(PT/BR) Analiza a midia enviada manualmente para o nostr.build 
-A intenção é analizar o URL recebido na celula anterior, a url inserida foi copiada manualmente de uma imagem upada manualmente.
-```
-import requests
-from PIL import Image
-import tempfile
-
-url = 'https://nostr.build/i/nostr.build_2603027c7ac856090fea4999c6711ad35490b1b0c6b255637c82bb2460681f10.jpg'
-# url = f'https://nostr.build/i/nostr.build_{sha256result}{fileformat}'
-# print(f"{url}")
-
-response = requests.get(url)
-
-if response.status_code == 200:
-    with open('myimage.jpg', 'wb') as f:
-        f.write(response.content)
-    print("Imagem enviada:")
-    img = Image.open(f.name)
-    img.show()   
-    
-else:
-    print(f'Erro ao baixar a imagem: {response.status_code}')
-```
-
-## 9 Cell - Main Data Generation [Still does not receive the url of the image referring to the text sent with their name]
-(PT/BR) Geração de Dados Principal [Ainda não recebe a url da imagem referente ao texto enviado com nome delas]
-```
-from google.colab import drive 
 from google.colab import runtime
 from PIL import Image
 import os
@@ -257,6 +64,8 @@ import random
 import datetime
 import time
 import pytz
+import requests
+
 
 
 k = 1
@@ -270,7 +79,7 @@ def checagem_encerramento():
     time.sleep(1)
     while True:
         resposta = input("\n>> Deseja ser perguntado se quer continuar o programa ao esperar o próximo post? ('sim' ou 'não'): ")
-        
+
         if remover_acentos(resposta.strip().lower()) == "sim":
             global k
             k = 0
@@ -279,14 +88,14 @@ def checagem_encerramento():
             time.sleep(1)
             print("\n   Continuando...\n")
             return
-        
+
         elif remover_acentos(resposta.strip().lower()) == "nao":
             time.sleep(1)
             print("\n   Verificação de finalização não ativada. O programa funcionará automaticamente.")
             time.sleep(1)
             print("\n   Continuando...\n")
             return
-        
+
         else:
             time.sleep(1)
             print("\n   Por favor, responda apenas 'sim' ou 'não'.")
@@ -295,12 +104,12 @@ def acessar_drive():
     time.sleep(1)
     while True:
         resposta = input("\n>> Deseja acessar o seu Drive? ('sim' ou 'não'): ")
-        
+
         if remover_acentos(resposta.strip().lower()) == "sim":
             time.sleep(1)
             print("\n   Conectando...\n")
             return
-        
+
         elif remover_acentos(resposta.strip().lower()) == "nao":
             time.sleep(1)
             #exit()
@@ -318,24 +127,43 @@ def acessar_drive():
             print(".", end="")
             time.sleep(1)
             runtime.unassign()
-        
+
         else:
             time.sleep(1)
             print("\n   Por favor, responda apenas 'sim' ou 'não'.")
+
+def upload_to_pomf(image_path):
+    url = 'https://pomf.lain.la/upload.php'
+
+    with open(image_path, 'rb') as file:
+        files = {'files[]': file}
+        response = requests.post(url, files=files)
+
+        if response.status_code == 200:
+            response_json = response.json()
+            if 'files' in response_json and len(response_json['files']) > 0:
+                file_url = response_json['files'][0]['url']
+                return file_url
+            else:
+                print("Erro ao obter o link da imagem")
+                return None
+        else:
+            print(f"Erro ao enviar a imagem: {response.status_code}")
+            return None
 
 
 def encerrar_programa():
     time.sleep(1)
     while True:
         resposta = input("\n>> Deseja continuar? ('sim' ou 'não'): ")
-        
+
         if remover_acentos(resposta.strip().lower()) == "sim":
             time.sleep(1)
             print("\n   Continuando...")
             time.sleep(1)
             print("\n   Aguarde o horario para o post.")
             return
-        
+
         elif remover_acentos(resposta.strip().lower()) == "nao":
             time.sleep(1)
             #exit()
@@ -353,7 +181,7 @@ def encerrar_programa():
             print(".", end="")
             time.sleep(1)
             runtime.unassign()
-        
+
         else:
             time.sleep(1)
             print("\n   Por favor, responda apenas 'sim' ou 'não'.")
@@ -403,19 +231,19 @@ for i in range(7):
   agora_br = agora.astimezone(fuso_horario)
 
   # Gera horário aleatório com diferença de 0 a 20 minutos a mais
-  hora_gm = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 7, 0, 0) #7h
-  hora_gm += datetime.timedelta(minutes=random.randint(0, 20))
+  hora_gm = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 0, 11, 0) #7h
+  hora_gm += datetime.timedelta(minutes=random.randint(0, 1))
   hora_gm += datetime.timedelta(seconds=random.randint(0, 60))
   hora_gm = fuso_horario.localize(hora_gm)
 
-  hora_img1 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 8, 50, 0) #8:50
+  hora_img1 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 8, 47, 0) #8:50
   hora_img1 += datetime.timedelta(minutes=random.randint(0, 20))
   hora_img1 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img1 = fuso_horario.localize(hora_img1)
 
-  hora_img2 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 11, 50, 0) #11:50
-  hora_img2 += datetime.timedelta(minutes=random.randint(0, 20))
-  hora_img2 += datetime.timedelta(seconds=random.randint(0, 60))
+  hora_img2 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 10, 14, 0) #11:50
+  hora_img2 += datetime.timedelta(minutes=random.randint(0, 1))
+  hora_img2 += datetime.timedelta(seconds=random.randint(0, 1))
   hora_img2 = fuso_horario.localize(hora_img2)
 
   hora_img3 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 15, 50, 0) #15:50
@@ -423,17 +251,17 @@ for i in range(7):
   hora_img3 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img3 = fuso_horario.localize(hora_img3)
 
-  hora_img4 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 18, 50, 0) #18:50
-  hora_img4 += datetime.timedelta(minutes=random.randint(0, 20))
+  hora_img4 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 18, 43, 0) #18:50
+  hora_img4 += datetime.timedelta(minutes=random.randint(0, 1))
   hora_img4 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img4 = fuso_horario.localize(hora_img4)
 
-  hora_img5 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 21, 50, 0) #21:50
-  hora_img5 += datetime.timedelta(minutes=random.randint(0, 20))
+  hora_img5 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 20, 8, 0) #21:50
+  hora_img5 += datetime.timedelta(minutes=random.randint(0, 1))
   hora_img5 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img5 = fuso_horario.localize(hora_img5)
 
-  hora_gn = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 23, 0, 0) #23h
+  hora_gn = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 23, 52, 0) #23h
   hora_gn += datetime.timedelta(minutes=random.randint(0, 20))
   hora_gn += datetime.timedelta(seconds=random.randint(0, 60))
   hora_gn = fuso_horario.localize(hora_gn)
@@ -450,11 +278,11 @@ for i in range(7):
 
 
     # soma 5 a cada loop em i
-    path = os.path.join(folder_path, files[j + (i * 5)])
+    image_path = os.path.join(folder_path, files[j + (i * 5)])
 
     # obtém o nome do arquivo sem a extensão e substitui "_" por espaço
-    filename2 = os.path.splitext(os.path.basename(path))
-    filename = os.path.splitext(os.path.basename(path))[0]
+    filename2 = os.path.splitext(os.path.basename(image_path))
+    filename = os.path.splitext(os.path.basename(image_path))[0]
     filename = filename.replace("_", " ")
     filename = filename.replace("§", "\n")
     filename = re.sub(r'\d+\.', '', filename)
@@ -462,33 +290,33 @@ for i in range(7):
     # Verifica se as mensagens devem ser enviadas dentro do horário real
     agora = datetime.datetime.now(pytz.utc)
     agora_br = agora.astimezone(fuso_horario)
-   
+
     #print(f"Data e hora atual: {agora_br.hour}:{agora_br.minute}:{agora_br.second}")
     print(f"\nData e hora atual: {agora_br.strftime('%d/%m/%Y %H:%M:%S')}")
 
     time.sleep(1)
 
-    
+
     if hora_gm > agora_br:
 
         diferenca_gm = hora_gm - agora_br
         print(f"\nO horário da mensagem Good Morning é às {hora_gm.hour}:{hora_gm.minute}:{hora_gm.second}")
         print(f"Faltam {diferenca_gm.days} dias, {diferenca_gm.seconds//3600} horas, {(diferenca_gm.seconds//60)%60} minutos e {diferenca_gm.seconds%60} segundos...")
-        
+
         if k == 0:
             encerrar_programa()
 
         print("\n   Esperando...")
 
         time.sleep((hora_gm - agora_br).total_seconds())
-   
+
         # Seleciona um emoji aleatório sem repetição para GM
         emoji_gm = random.choice(emojis[0])
         while emoji_gm in letras_gm:
             emoji_gm = random.choice(emojis[0])
         letras_gm.append(emoji_gm)
-        
-        print(hora_gm.strftime("%d/%m/%Y %H:%M:%S")) 
+
+        print(hora_gm.strftime("%d/%m/%Y %H:%M:%S"))
 
 
         # Post the GM / Posta o GM
@@ -503,9 +331,9 @@ for i in range(7):
         # Print the complete GM / Imprime o GM completo
         print("GM", emoji_gm)
 
-    # condicional para a primeira imagem    
+    # condicional para a primeira imagem
     if hora_img1 > agora_br and (j == 0 or j == 5):
-           
+
         diferenca_img1 = hora_img1 - agora_br
         print(f"\nO horário da proxima imagem, a imagem 1, é às {hora_img1.hour}:{hora_img1.minute}:{hora_img1.second}")
         print(f"Faltam {diferenca_img1.days} dias, {diferenca_img1.seconds//3600} horas, {(diferenca_img1.seconds//60)%60} minutos e {diferenca_img1.seconds%60} segundos...")
@@ -514,13 +342,23 @@ for i in range(7):
             encerrar_programa()
 
         print("\n   Esperando...")
-        
-        time.sleep((hora_img1 - agora_br).total_seconds())       
+
+        time.sleep((hora_img1 - agora_br).total_seconds())
         print("Imagem 1:")
 
-        
+
+        # Exemplo de uso:
+        #image_path = f"{file_path}"
+        image_url = upload_to_pomf(image_path)
+
+        if image_url:
+            print(f"Imagem enviada com sucesso: {image_url}")
+        else:
+            print("Erro ao enviar a imagem.")
+
+
         # Post the name of the image with the image / Posta o nome da imagem com a imagem
-        filename_url = f"{filename}\n\n{url}" #filename (Title and/or description) + url
+        filename_url = f"{filename}\n\n{image_url}" #filename (Title and/or description) + url
         message = str(filename_url)
         event = Event(
             content=str(message),
@@ -533,8 +371,8 @@ for i in range(7):
         print(f"\nNome da imagem: {filename}\n")
 
         # Open and show the image / Abre e exibe a imagem
-        img = Image.open(path)
-        img.show()        
+        img = Image.open(image_path)
+        img.show()
 
     if hora_img2 > agora_br and (j == 1 or j == 6):
 
@@ -547,12 +385,20 @@ for i in range(7):
 
         print("\n   Esperando...")
 
-        time.sleep((hora_img2 - agora_br).total_seconds())       
+        time.sleep((hora_img2 - agora_br).total_seconds())
         print("Imagem 2:")
 
-        
+        # Exemplo de uso:
+        #image_path = f"{file_path}"
+        image_url = upload_to_pomf(image_path)
+
+        if image_url:
+            print(f"Imagem enviada com sucesso: {image_url}")
+        else:
+            print("Erro ao enviar a imagem.")
+
         # posta o nome da imagem com a imagem
-        filename_url = f"{filename}\n\n{url}" #filename (Title and/or description) + url
+        filename_url = f"{filename}\n\n{image_url}" #filename (Title and/or description) + url
         message = str(filename_url)
         event = Event(
             content=str(message),
@@ -565,8 +411,8 @@ for i in range(7):
         print(f"\nNome da imagem: {filename}\n")
 
         # abre e exibe a imagem
-        img = Image.open(path)
-        img.show()        
+        img = Image.open(image_path)
+        img.show()
 
     if hora_img3 > agora_br and (j == 2 or j == 7):
 
@@ -579,11 +425,20 @@ for i in range(7):
 
         print("\n   Esperando...")
 
-        time.sleep((hora_img3 - agora_br).total_seconds())      
+        time.sleep((hora_img3 - agora_br).total_seconds())
         print("Imagem 3:")
-        
+
+        # Exemplo de uso:
+        #image_path = f"{file_path}"
+        image_url = upload_to_pomf(image_path)
+
+        if image_url:
+            print(f"Imagem enviada com sucesso: {image_url}")
+        else:
+            print("Erro ao enviar a imagem.")
+
         # posta o nome da imagem com a imagem
-        filename_url = f"{filename}\n\n{url}" #filename (Title and/or description) + url
+        filename_url = f"{filename}\n\n{image_url}" #filename (Title and/or description) + url
         message = str(filename_url)
         event = Event(
             content=str(message),
@@ -596,11 +451,11 @@ for i in range(7):
         print(f"\nNome da imagem: {filename}\n")
 
         # abre e exibe a imagem
-        img = Image.open(path)
-        img.show()        
+        img = Image.open(image_path)
+        img.show()
 
     if hora_img4 > agora_br and (j == 3 or j == 8):
-      
+
         diferenca_img4 = hora_img4 - agora_br
         print(f"\nO horário da proxima imagem, a imagem 4, é às {hora_img4.hour}:{hora_img4.minute}:{hora_img4.second}")
         print(f"Faltam {diferenca_img4.days} dias, {diferenca_img4.seconds//3600} horas, {(diferenca_img4.seconds//60)%60} minutos e {diferenca_img4.seconds%60} segundos...")
@@ -610,11 +465,20 @@ for i in range(7):
 
         print("\n   Esperando...")
 
-        time.sleep((hora_img4 - agora_br).total_seconds())     
+        time.sleep((hora_img4 - agora_br).total_seconds())
         print("Imagem 4:")
-        
+
+        # Exemplo de uso:
+        #image_path = f"{file_path}"
+        image_url = upload_to_pomf(image_path)
+
+        if image_url:
+            print(f"Imagem enviada com sucesso: {image_url}")
+        else:
+            print("Erro ao enviar a imagem.")
+
         # posta o nome da imagem com a imagem
-        filename_url = f"{filename}\n\n{url}" #filename (Title and/or description) + url
+        filename_url = f"{filename}\n\n{image_url}" #filename (Title and/or description) + url
         message = str(filename_url)
         event = Event(
             content=str(message),
@@ -627,11 +491,11 @@ for i in range(7):
         print(f"\nNome da imagem: {filename}\n")
 
         # abre e exibe a imagem
-        img = Image.open(path)
-        img.show()        
+        img = Image.open(image_path)
+        img.show()
 
     if hora_img5 > agora_br and (j == 4 or j == 9):
-        
+
         diferenca_img5 = hora_img5 - agora_br
         print(f"\nO horário da proxima imagem, a imagem 5, é às {hora_img5.hour}:{hora_img5.minute}:{hora_img5.second}")
         print(f"Faltam {diferenca_img5.days} dias, {diferenca_img5.seconds//3600} horas, {(diferenca_img5.seconds//60)%60} minutos e {diferenca_img5.seconds%60} segundos...")
@@ -641,11 +505,20 @@ for i in range(7):
 
         print("\n   Esperando...")
 
-        time.sleep((hora_img5 - agora_br).total_seconds())       
-        print("Imagem 5:")  
-        
+        time.sleep((hora_img5 - agora_br).total_seconds())
+        print("Imagem 5:")
+
+        # Exemplo de uso:
+        #image_path = f"{file_path}"
+        image_url = upload_to_pomf(image_path)
+
+        if image_url:
+            print(f"Imagem enviada com sucesso: {image_url}")
+        else:
+            print("Erro ao enviar a imagem.")
+
         # posta o nome da imagem com a imagem
-        filename_url = f"{filename}\n\n{url}" #filename (Title and/or description) + url
+        filename_url = f"{filename}\n\n{image_url}" #filename (Title and/or description) + url
         message = str(filename_url)
         event = Event(
             content=str(message),
@@ -658,9 +531,9 @@ for i in range(7):
         print(f"\nNome da imagem: {filename}\n")
 
         # abre e exibe a imagem
-        img = Image.open(path)
-        img.show()                                  
-    
+        img = Image.open(image_path)
+        img.show()
+
     if hora_gn > agora_br and (j == 4 or j == 9):
 
         diferenca_gn = hora_gn - agora_br
