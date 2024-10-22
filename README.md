@@ -232,7 +232,7 @@ for i in range(7):
 
   # Gera horário aleatório com diferença de 0 a 20 minutos a mais
   hora_gm = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 0, 11, 0) #7h
-  hora_gm += datetime.timedelta(minutes=random.randint(0, 1))
+  hora_gm += datetime.timedelta(minutes=random.randint(0, 20))
   hora_gm += datetime.timedelta(seconds=random.randint(0, 60))
   hora_gm = fuso_horario.localize(hora_gm)
 
@@ -242,8 +242,8 @@ for i in range(7):
   hora_img1 = fuso_horario.localize(hora_img1)
 
   hora_img2 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 10, 14, 0) #11:50
-  hora_img2 += datetime.timedelta(minutes=random.randint(0, 1))
-  hora_img2 += datetime.timedelta(seconds=random.randint(0, 1))
+  hora_img2 += datetime.timedelta(minutes=random.randint(0, 20))
+  hora_img2 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img2 = fuso_horario.localize(hora_img2)
 
   hora_img3 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 15, 50, 0) #15:50
@@ -252,12 +252,12 @@ for i in range(7):
   hora_img3 = fuso_horario.localize(hora_img3)
 
   hora_img4 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 18, 43, 0) #18:50
-  hora_img4 += datetime.timedelta(minutes=random.randint(0, 1))
+  hora_img4 += datetime.timedelta(minutes=random.randint(0, 20))
   hora_img4 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img4 = fuso_horario.localize(hora_img4)
 
   hora_img5 = datetime.datetime(agora_br.year, agora_br.month, agora_br.day, 20, 8, 0) #21:50
-  hora_img5 += datetime.timedelta(minutes=random.randint(0, 1))
+  hora_img5 += datetime.timedelta(minutes=random.randint(0, 20))
   hora_img5 += datetime.timedelta(seconds=random.randint(0, 60))
   hora_img5 = fuso_horario.localize(hora_img5)
 
