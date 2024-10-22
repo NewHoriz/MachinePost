@@ -23,8 +23,8 @@ print(f"Private key: {private_key.hex()}")
 print(f"Public key: {public_key.hex()}")
 ```
 
-## 3 Cell - Relay and account request 
-(PT/BR) Requisição do Relay e da conta
+## 3 Cell - Relay and account request [or put you acount}
+(PT/BR) Requisição do Relay e da conta [ou bote a sua conta]
 ```
 import requests
 import time
@@ -53,7 +53,7 @@ private_key = PrivateKey(bytes.fromhex(env_private_key))
 ```
 
 ## 4 Cell - Main Data Generation [get images from your Google Drive]
-(PT/BR) Geração de Dados Principal [obtenha as imagens pelo seu Google drive]
+(PT/BR) Geração de Dados Principal [obtenha as imagens pelo seu Google Drive]
 ```
 from google.colab import drive
 from google.colab import runtime
