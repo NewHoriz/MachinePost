@@ -23,8 +23,8 @@ print(f"Private key: {private_key.hex()}")
 print(f"Public key: {public_key.hex()}")
 ```
 
-## 3 Cell - Relay and account request [or put you acount}
-(PT/BR) Requisição do Relay e da conta [ou bote a sua conta]
+## 3 Cell - Relay and account request [you can put your account]
+(PT/BR) Requisição do Relay e da conta [Pode botar a sua conta]
 ```
 import requests
 import time
